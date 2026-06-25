@@ -1,0 +1,233 @@
+/* ===== WireGuard ⇄ MikroTik generator — styles ===== */
+:root {
+  --bg: #0d1117;
+  --bg-soft: #161b22;
+  --bg-card: #161b22;
+  --bg-input: #0d1117;
+  --border: #2a3340;
+  --border-soft: #21262d;
+  --text: #e6edf3;
+  --text-dim: #9aa7b4;
+  --text-faint: #6e7b89;
+  --accent: #2dd4bf;
+  --accent-2: #38bdf8;
+  --accent-press: #14b8a6;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --ok: #4ade80;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Vazirmatn", Tahoma, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+/* the [hidden] attribute must win even over elements that set an explicit
+   display (e.g. .grid sets display:grid, which would otherwise override it) */
+[hidden] { display: none !important; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(45, 212, 191, .10), transparent 60%),
+    radial-gradient(1000px 500px at -10% 10%, rgba(56, 189, 248, .08), transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.app { max-width: 1520px; margin: 0 auto; padding: 22px clamp(12px, 3vw, 32px) 60px; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 22px;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.logo {
+  width: 46px; height: 46px; border-radius: 12px; flex: none;
+  display: grid; place-items: center; font-weight: 800; letter-spacing: .5px;
+  color: #04201c; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: var(--shadow);
+}
+h1 { font-size: clamp(18px, 2.4vw, 24px); margin: 0; }
+.subtitle { margin: 2px 0 0; color: var(--text-dim); font-size: 13px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.badge {
+  font-size: 12px; color: var(--accent); background: rgba(45, 212, 191, .10);
+  border: 1px solid rgba(45, 212, 191, .30); padding: 6px 10px; border-radius: 999px; white-space: nowrap;
+}
+
+/* ---------- layout ---------- */
+.layout {
+  display: grid; gap: clamp(14px, 1.4vw, 22px);
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, .85fr);
+  align-items: start;
+}
+.layout > * { min-width: 0; }
+
+/* On wide screens the Deploy card follows the scroll so the right column
+   space is used instead of sitting empty next to the tall Settings card. */
+@media (min-width: 981px) {
+  .deploy { position: sticky; top: 16px; }
+}
+/* stack on tablets / phones */
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  .deploy { position: static; }
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,.02), transparent), var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: clamp(16px, 1.4vw, 24px);
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.codewrap { min-width: 0; }
+.card-title { margin: 0 0 14px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.card-title::before { content: ""; width: 4px; height: 18px; border-radius: 3px; background: linear-gradient(var(--accent), var(--accent-2)); }
+
+.profiles { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.profiles select { flex: 1 1 180px; min-width: 0; }
+.profiles .btn { flex: 0 0 auto; }
+
+fieldset { border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 14px; margin: 0 0 14px; }
+legend { padding: 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--text-faint); }
+
+/* ---------- form ---------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.sm { }
+.field.wide { grid-column: 1 / -1; }
+.field > span { font-size: 12.5px; color: var(--text-dim); }
+.field.check { flex-direction: row; align-items: center; gap: 8px; grid-column: 1 / -1; }
+.field.check span { font-size: 13px; color: var(--text); }
+
+input, select {
+  width: 100%; background: var(--bg-input); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 11px; font-size: 13.5px; font-family: var(--sans);
+  transition: border-color .15s, box-shadow .15s;
+}
+input[type="number"] { font-variant-numeric: tabular-nums; }
+input:focus, select:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, .15);
+}
+input[type="checkbox"] { width: auto; accent-color: var(--accent); transform: scale(1.15); }
+.hint { font-size: 12px; color: var(--text-faint); margin: 8px 0 0; }
+.hint.warn { color: var(--warn); }
+
+
+/* ---------- buttons ---------- */
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+/* primary actions grow to share the row width, but never get absurdly wide */
+.actions .btn { flex: 1 1 160px; max-width: 340px; }
+.btn {
+  appearance: none; cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg-soft); color: var(--text);
+  padding: clamp(9px, .9vw, 12px) clamp(12px, 1.1vw, 18px);
+  border-radius: var(--radius-sm); font-size: clamp(13px, .95vw, 14.5px); font-weight: 600;
+  white-space: nowrap; text-align: center;
+  transition: transform .05s, border-color .15s, background .15s, opacity .15s;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #04201c; border-color: transparent;
+}
+.btn-primary:hover { filter: brightness(1.05); }
+.btn-ghost { background: transparent; }
+.btn-danger { color: var(--danger); border-color: rgba(248, 113, 113, .4); }
+.btn-danger:hover { border-color: var(--danger); background: rgba(248, 113, 113, .08); }
+/* push button fills its panel width so it doesn't look lost in empty space */
+#pushBtn { width: 100%; }
+/* secondary data actions (backup / restore / reset) are smaller than the main row */
+.data-actions { margin-top: 12px; }
+.data-actions .btn { flex: 0 1 auto; max-width: none; font-size: 13px; padding: 8px 12px; }
+.dl-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.dl-row .btn { flex: 1 1 auto; }
+
+.error { color: var(--danger); font-size: 13px; margin: 10px 0 0; }
+
+/* ---------- tabs ---------- */
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border-soft); margin-bottom: 14px; flex-wrap: wrap; }
+.tab {
+  background: none; border: none; color: var(--text-dim); cursor: pointer;
+  padding: 9px 12px; font-size: 13px; font-weight: 600; border-radius: 8px 8px 0 0;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.creds { margin-bottom: 12px; }
+
+/* ---------- code blocks ---------- */
+.codewrap { position: relative; }
+.code {
+  background: #0a0e14; border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  padding: 14px; font-family: var(--mono); font-size: 12.5px; line-height: 1.55;
+  color: #c9d6e2; white-space: pre; overflow: auto; max-height: 420px; margin: 0;
+  direction: ltr; text-align: left;
+}
+/* leave room at the top so the floating Copy button never sits on the first line */
+.codewrap .code { padding-top: 42px; }
+.code.log { min-height: 64px; white-space: pre-wrap; color: var(--text-dim); padding-top: 14px; }
+.code.log:empty { display: flex; align-items: center; }
+.code.log:empty::before { content: attr(data-ph); color: var(--text-faint); font-style: italic; }
+.copy-btn {
+  position: absolute; top: 8px; inset-inline-end: 8px; z-index: 2;
+  background: var(--bg-soft); color: var(--text); border: 1px solid var(--border);
+  border-radius: 7px; padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.copy-btn.copied { color: var(--ok); border-color: var(--ok); }
+
+/* ---------- clients ---------- */
+.clients-section { margin-top: 24px; }
+.section-title { font-size: 16px; margin: 0 0 14px; }
+.clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+.empty { color: var(--text-faint); font-size: 14px; }
+
+.client {
+  background: var(--bg-card); border: 1px solid var(--border-soft);
+  border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.client-head { display: flex; align-items: center; gap: 10px; }
+.client-head input {
+  font-weight: 600; padding: 7px 9px;
+}
+.client-ip {
+  font-family: var(--mono); font-size: 12px; color: var(--accent);
+  background: rgba(45, 212, 191, .08); border: 1px solid rgba(45, 212, 191, .25);
+  padding: 4px 8px; border-radius: 7px; white-space: nowrap; flex: none;
+}
+.qr-box { display: grid; place-items: center; background: #fff; border-radius: 10px; padding: 12px; }
+.qr-box canvas { display: block; width: 100%; height: auto; max-width: 240px; image-rendering: pixelated; }
+.client-conf {
+  background: #0a0e14; border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
+  padding: 10px; font-family: var(--mono); font-size: 11px; line-height: 1.5;
+  color: #c9d6e2; white-space: pre; overflow: auto; max-height: 180px; margin: 0;
+  direction: ltr; text-align: left;
+}
+.client-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.client-actions .btn { padding: 7px 10px; font-size: 12.5px; flex: 1 1 auto; }
+
+/* ---------- footer ---------- */
+.footer {
+  margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--border-soft);
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  font-size: 12px; color: var(--text-faint);
+}
+.footer a { color: var(--accent-2); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }

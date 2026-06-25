@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate WireGuard client configs + MikroTik RouterOS setup scripts in your browser. QR codes, .conf files, auto add via REST API. 100% client-side." />
+  <title>WireGuard ⇄ MikroTik Config Generator</title>
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">WG</div>
+        <div>
+          <h1 data-i18n="appTitle">WireGuard ⇄ MikroTik Generator</h1>
+          <p class="subtitle" data-i18n="appSubtitle">Generate client configs, QR codes and RouterOS scripts — all in your browser.</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge" title="Nothing is sent to any server" data-i18n="badgeLocal">🔒 100% client-side</span>
+        <button id="langToggle" class="btn btn-ghost" type="button">فارسی</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- ===================== SETTINGS ===================== -->
+      <section class="card settings">
+        <h2 class="card-title" data-i18n="settingsTitle">Settings</h2>
+
+        <div class="profiles">
+          <select id="profileSelect" aria-label="Profiles">
+            <option value="" data-i18n="profileLoadPlaceholder">— Load profile —</option>
+          </select>
+          <button id="saveProfileBtn" class="btn" type="button" data-i18n="btnSaveProfile">💾 Save</button>
+          <button id="deleteProfileBtn" class="btn" type="button" disabled data-i18n="btnDeleteProfile">🗑 Delete</button>
+        </div>
+
+        <fieldset>
+          <legend data-i18n="fsServer">Server / Endpoint</legend>
+          <div class="grid">
+            <label class="field">
+              <span data-i18n="lblEndpoint">Endpoint host (for clients)</span>
+              <input id="endpointHost" type="text" value="vpn.example.com" data-i18n-ph="phEndpoint" placeholder="vpn.example.com or 1.2.3.4" />
+            </label>
+            <label class="field sm">
+              <span data-i18n="lblPort">Listen port</span>
+              <input id="listenPort" type="number" value="13231" min="1" max="65535" />
+            </label>
+            <label class="field sm">
+              <span data-i18n="lblIface">Interface name</span>
+              <input id="ifaceName" type="text" value="wg0" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="fsAddressing">Addressing</legend>
+          <div class="grid">
+            <label class="field">
+              <span data-i18n="lblCidr">Tunnel subnet (CIDR)</span>
+              <input id="wgCidr" type="text" value="10.10.10.0/24" />
+            </label>
+            <label class="field">
+              <span data-i18n="lblServerIp">Server tunnel IP</span>
+              <input id="serverIp" type="text" value="10.10.10.1" />
+            </label>
+            <label class="field">
+              <span data-i18n="lblFirstIp">First client IP</span>
+              <input id="firstClientIp" type="text" value="10.10.10.2" />
+            </label>
+            <label class="field sm">
+              <span data-i18n="lblCount"># of clients</span>
+              <input id="clientCount" type="number" value="3" min="1" max="250" />
+            </label>
+            <label class="field sm">
+              <span data-i18n="lblPrefix">Name prefix</span>
+              <input id="namePrefix" type="text" value="wire" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="fsClientOpts">Client options</legend>
+          <div class="grid">
+            <label class="field">
+              <span data-i18n="lblTunnel">Routing</span>
+              <select id="tunnelMode">
+                <option value="split" data-i18n="optSplit">Split tunnel (only listed nets)</option>
+                <option value="full" data-i18n="optFull">Full tunnel (0.0.0.0/0)</option>
+              </select>
+            </label>
+            <label class="field" id="extraAllowedField">
+              <span data-i18n="lblExtra">Extra AllowedIPs (behind router)</span>
+              <input id="extraAllowed" type="text" value="192.168.88.0/24" placeholder="192.168.88.0/24,192.168.0.0/24" />
+            </label>
+            <label class="field">
+              <span data-i18n="lblDns">Client DNS</span>
+              <input id="dns" type="text" value="10.10.10.1" placeholder="1.1.1.1, 8.8.8.8" />
+            </label>
+            <label class="field sm">
+              <span data-i18n="lblMtu">MTU</span>
+              <input id="mtu" type="number" value="1420" />
+            </label>
+            <label class="field sm">
+              <span data-i18n="lblKeepalive">Keepalive (s)</span>
+              <input id="keepalive" type="number" value="25" />
+            </label>
+            <label class="field check">
+              <input id="usePsk" type="checkbox" checked />
+              <span data-i18n="lblPsk">Use preshared key (extra security)</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend data-i18n="fsKeys">Server keys</legend>
+          <div class="grid">
+            <label class="field">
+              <span data-i18n="lblKeyMode">Mode</span>
+              <select id="serverKeyMode">
+                <option value="generate" data-i18n="optGenerate">Generate new server keypair</option>
+                <option value="existing" data-i18n="optExisting">Use existing server (paste public key)</option>
+              </select>
+            </label>
+            <label class="field wide" id="serverPrivField">
+              <span data-i18n="lblServerPriv">Server private key</span>
+              <input id="serverPriv" type="text" placeholder="auto-generated" />
+            </label>
+            <label class="field wide">
+              <span data-i18n="lblServerPub">Server public key</span>
+              <input id="serverPub" type="text" placeholder="auto-generated" />
+            </label>
+          </div>
+          <p class="hint" data-i18n="hintKeys">In "existing" mode only the public key is needed — clients embed it. The private key never leaves the server.</p>
+        </fieldset>
+
+        <div class="actions">
+          <button id="generateBtn" class="btn btn-primary" type="button" data-i18n="btnGenerate">⚡ Generate</button>
+          <button id="regenServerBtn" class="btn" type="button" data-i18n="btnRegenServer">🔁 New server keys</button>
+          <button id="downloadAllBtn" class="btn" type="button" disabled data-i18n="btnDownloadAll">📦 Download all (.zip)</button>
+        </div>
+        <p id="formError" class="error" hidden></p>
+
+        <div class="actions data-actions">
+          <button id="backupBtn" class="btn" type="button" data-i18n="btnBackup">⬇ Backup</button>
+          <button id="restoreBtn" class="btn" type="button" data-i18n="btnRestore">⬆ Restore</button>
+          <input id="restoreFile" type="file" accept="application/json,.json" hidden />
+          <button id="resetBtn" class="btn btn-danger" type="button" data-i18n="btnReset">♻ Reset all</button>
+        </div>
+      </section>
+
+      <!-- ===================== OUTPUT (deploy) ===================== -->
+      <section class="card deploy">
+        <h2 class="card-title" data-i18n="deployTitle">Deploy to MikroTik</h2>
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="script" type="button" data-i18n="tabScript">RouterOS script</button>
+          <button class="tab" data-tab="curl" type="button" data-i18n="tabCurl">Auto add (curl)</button>
+          <button class="tab" data-tab="push" type="button" data-i18n="tabPush">Push (advanced)</button>
+        </div>
+
+        <!-- shared router credentials (used by the curl + push tabs) -->
+        <div id="credsBlock" class="grid creds" hidden>
+          <label class="field sm">
+            <span data-i18n="lblScheme">Scheme</span>
+            <select id="routerScheme">
+              <option value="https">https</option>
+              <option value="http">http</option>
+            </select>
+          </label>
+          <label class="field">
+            <span data-i18n="lblRouterHost">Router address</span>
+            <input id="routerHost" type="text" value="192.168.88.1" />
+          </label>
+          <label class="field sm">
+            <span data-i18n="lblRouterPort">Port (opt.)</span>
+            <input id="routerPort" type="text" placeholder="443 / 80" />
+          </label>
+          <label class="field sm">
+            <span data-i18n="lblRouterUser">Username</span>
+            <input id="routerUser" type="text" value="admin" />
+          </label>
+          <label class="field sm">
+            <span data-i18n="lblRouterPass">Password</span>
+            <input id="routerPass" type="password" placeholder="••••••" />
+          </label>
+        </div>
+
+        <!-- Tab: script -->
+        <div class="tabpanel" data-panel="script">
+          <p class="hint" data-i18n="hintScript">Most reliable. Paste this into the router terminal (Winbox &gt; New Terminal, or SSH).</p>
+          <div class="codewrap">
+            <button class="copy-btn" data-copy="#serverScript" type="button" data-i18n="btnCopy">Copy</button>
+            <pre id="serverScript" class="code" data-i18n="placeholderGenerate">Press “Generate” to build the script…</pre>
+          </div>
+        </div>
+
+        <!-- Tab: curl -->
+        <div class="tabpanel" data-panel="curl" hidden>
+          <p class="hint" data-i18n="hintCurl">Give the router credentials above and these commands add everything for you (RouterOS v7 REST API). Run in a bash/sh terminal that can reach the router.</p>
+          <div class="dl-row">
+            <button id="downloadPs1Btn" class="btn" type="button" data-i18n="btnPs1">⬇ Windows PowerShell (.ps1)</button>
+            <button id="downloadShBtn" class="btn" type="button" data-i18n="btnShFile">⬇ bash (.sh)</button>
+          </div>
+          <p class="hint" data-i18n="hintPs1">The .ps1 runs on Windows (double-click won't work — run it as shown in the file). It ignores self-signed certs and isn't affected by CORS, so it actually adds everything to the router.</p>
+          <div class="codewrap">
+            <button class="copy-btn" data-copy="#curlScript" type="button" data-i18n="btnCopy">Copy</button>
+            <pre id="curlScript" class="code" data-i18n="placeholderGenerate">Press “Generate” to build the commands…</pre>
+          </div>
+        </div>
+
+        <!-- Tab: push -->
+        <div class="tabpanel" data-panel="push" hidden>
+          <p class="hint warn" data-i18n="hintPush">Best-effort browser → router via REST API using the credentials above. Often blocked by CORS / mixed-content / self-signed certs — if it fails, use the curl tab.</p>
+          <button id="pushBtn" class="btn btn-primary" type="button" data-i18n="btnPush">🚀 Push to router</button>
+          <pre id="pushLog" class="code log" aria-live="polite"></pre>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================== CLIENTS ===================== -->
+    <section class="clients-section">
+      <h2 class="section-title" data-i18n="clientsTitle">Clients</h2>
+      <div id="clients" class="clients-grid">
+        <p class="empty" data-i18n="emptyClients">No clients yet — fill in the settings and press <strong>Generate</strong>.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span data-i18n="footerNote">All key generation happens locally in your browser. Nothing is uploaded.</span>
+      <a href="https://github.com/markeclaudio/mikrotik-wireguard-config-generator" target="_blank" rel="noopener">inspired by markeclaudio</a>
+    </footer>
+  </div>
+
+  <!-- vendor (local, offline-friendly) -->
+  <script src="./vendor/qrcode-generator.js"></script>
+  <script src="./vendor/jszip.min.js"></script>
+  <!-- app -->
+  <script src="./assets/js/wireguard.js"></script>
+  <script src="./assets/js/iputils.js"></script>
+  <script src="./assets/js/i18n.js"></script>
+  <script src="./assets/js/app.js"></script>
+</body>
+
+</html>
