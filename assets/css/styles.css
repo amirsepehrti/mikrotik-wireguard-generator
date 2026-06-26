@@ -195,6 +195,11 @@ input[type="checkbox"] { width: auto; accent-color: var(--accent); transform: sc
 /* ---------- clients ---------- */
 .clients-section { margin-top: 24px; }
 .section-title { font-size: 16px; margin: 0 0 14px; }
+.clients-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.clients-head .section-title { margin: 0; }
+.bulk-rename { display: flex; gap: 8px; flex: 1 1 260px; max-width: 440px; }
+.bulk-rename input { flex: 1 1 auto; min-width: 0; }
+.bulk-rename .btn { flex: 0 0 auto; }
 .clients-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
 .empty { color: var(--text-faint); font-size: 14px; }
 

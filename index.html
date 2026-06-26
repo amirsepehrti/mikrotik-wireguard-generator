@@ -223,7 +223,13 @@
 
     <!-- ===================== CLIENTS ===================== -->
     <section class="clients-section">
-      <h2 class="section-title" data-i18n="clientsTitle">Clients</h2>
+      <div class="clients-head">
+        <h2 class="section-title" data-i18n="clientsTitle">Clients</h2>
+        <div class="bulk-rename">
+          <input id="bulkName" type="text" data-i18n-ph="bulkNamePh" placeholder="base name (e.g. profile)" />
+          <button id="bulkRenameBtn" class="btn" type="button" data-i18n="btnBulkRename">✏ Rename all</button>
+        </div>
+      </div>
       <div id="clients" class="clients-grid">
         <p class="empty" data-i18n="emptyClients">No clients yet — fill in the settings and press <strong>Generate</strong>.</p>
       </div>

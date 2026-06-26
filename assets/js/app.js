@@ -343,6 +343,24 @@
     $("#curlScript").textContent = buildCurl(s);
   }
 
+  // default the bulk-rename base to the active profile name (falls back to the prefix)
+  function syncBulkName(force) {
+    var el = $("#bulkName");
+    if (!el) return;
+    if (force || !el.value.trim()) {
+      el.value = (lsGet(LS_ACTIVE) || "").trim() || val("namePrefix") || "client";
+    }
+  }
+  // rename every client to "<base>-<n>" — this is also what becomes the MikroTik peer comment
+  function bulkRename() {
+    if (!state.clients.length) return;
+    var base = ($("#bulkName").value || "").trim() || (lsGet(LS_ACTIVE) || "").trim() || val("namePrefix") || "client";
+    state.clients.forEach(function (c, i) { c.name = base + "-" + (i + 1); });
+    var s = readSettings();
+    renderClients(s);
+    renderDeploy(s);
+  }
+
   // ---------- main build ----------
   function build(forceNew) {
     var s = readSettings();
@@ -417,19 +435,33 @@
   }
 
   // ---------- zip ----------
-  function downloadAll() {
+  function canvasToPng(canvas) {
+    return new Promise(function (res) { canvas.toBlob(res, "image/png"); });
+  }
+  async function downloadAll() {
     if (!state.clients.length) return;
     var s = readSettings();
     var zip = new JSZip();
     var folder = zip.folder("clients");
-    state.clients.forEach(function (c) {
-      folder.file(sanitizeFilename(c.name) + ".conf", buildClientConf(c, s));
-    });
+    var used = {};
+    for (var i = 0; i < state.clients.length; i++) {
+      var c = state.clients[i];
+      var conf = buildClientConf(c, s);
+      var fn = sanitizeFilename(c.name);
+      if (used[fn]) fn = fn + "-" + (i + 1); // avoid collisions on duplicate names
+      used[fn] = true;
+      folder.file(fn + ".conf", conf);
+      // QR image (same content as the .conf)
+      var cv = document.createElement("canvas");
+      drawQr(cv, conf);
+      var png = await canvasToPng(cv);
+      if (png) folder.file(fn + ".png", png);
+    }
     zip.file("mikrotik-setup.rsc", buildServerScript(s));
-    zip.file("auto-add-curl.sh", buildCurl(s));
-    zip.generateAsync({ type: "blob" }).then(function (blob) {
-      downloadBlob("wireguard-configs.zip", blob);
-    });
+    zip.file("auto-add-mikrotik.ps1", buildPowerShell(s));
+    zip.file("auto-add-mikrotik.sh", buildCurl(s));
+    var out = await zip.generateAsync({ type: "blob" });
+    downloadBlob("wireguard-configs.zip", out);
   }
 
   // ---------- copy ----------
@@ -528,6 +560,9 @@
       this.value = "";
     });
     $("#resetBtn").addEventListener("click", resetAll);
+
+    // bulk rename clients
+    $("#bulkRenameBtn").addEventListener("click", bulkRename);
 
     // download deploy scripts as files
     $("#downloadPs1Btn").addEventListener("click", function () {
@@ -691,6 +726,7 @@
     refreshProfiles();
     $("#profileSelect").value = name;
     $("#deleteProfileBtn").disabled = false;
+    syncBulkName(true); // peer comments follow the profile name
   }
   function loadProfileByName(name) {
     var profiles = getProfiles();
@@ -698,6 +734,7 @@
     applyValues(profiles[name]);
     lsSet(LS_ACTIVE, name);
     build(false);              // rebuild text/QR/scripts using the restored keys
+    syncBulkName(true);        // peer comments follow the profile name
   }
   function deleteProfile() {
     var sel = $("#profileSelect");
@@ -824,5 +861,6 @@
       updateTunnelUi();
       build(true);
     }
+    syncBulkName();
   });
 })();

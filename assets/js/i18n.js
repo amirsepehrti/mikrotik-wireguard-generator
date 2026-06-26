@@ -68,6 +68,8 @@
       btnPush: "🚀 Push to router",
       pushPlaceholder: "Status will appear here after you press “Push to router”.",
       clientsTitle: "Clients",
+      btnBulkRename: "✏ Rename all",
+      bulkNamePh: "base name (matches the profile)",
       emptyClients: "No clients yet — fill in the settings and press Generate.",
       footerNote: "All key generation happens locally in your browser. Nothing is uploaded.",
       // dynamic
@@ -155,6 +157,8 @@
       btnPush: "🚀 ارسال به روتر",
       pushPlaceholder: "بعد از زدن «ارسال به روتر»، وضعیت اینجا نمایش داده می‌شود.",
       clientsTitle: "کلاینت‌ها",
+      btnBulkRename: "✏ تغییر نام همه",
+      bulkNamePh: "نام پایه (هم‌نام پروفایل)",
       emptyClients: "هنوز کلاینتی نیست — تنظیمات را پر کن و «ساخت» را بزن.",
       footerNote: "تمام ساخت کلیدها به‌صورت محلی در مرورگر انجام می‌شود. چیزی آپلود نمی‌شود.",
       cDownloadConf: "⬇ فایل .conf",
